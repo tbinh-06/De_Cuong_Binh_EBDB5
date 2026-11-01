@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Đề cương KLTN · Effective use hệ thống BI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap&subset=vietnamese" rel="stylesheet">
+<style>
+:root{
+  --navy:#080b1f;--light:#f4f6fb;--ink:#141a33;--muted:#4a5378;--subtle:#6a7396;--line:#dce2f0;
+  --blue:#2f6fe0;--blue-d:#1d4fb8;--brand:#3a86ff;--sky:#6cc0ff;--gold:#f2c46d;
+  --ok:#14915c;--no:#9aa3bd;--bad:#c0392b;--purple:#7c5cc4;
+  --fd:'Plus Jakarta Sans',Arial,sans-serif;--fs:Lexend,Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;background:#03050f;overflow:hidden}
+body{font-family:var(--fs);-webkit-font-smoothing:antialiased}
+#stage{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0}
+.slide{position:absolute;inset:0;width:1920px;height:1080px;overflow:hidden;opacity:0;visibility:hidden;transition:opacity .4s ease,visibility 0s .4s}
+.slide.on{opacity:1;visibility:visible;transition:opacity .4s ease}
+.light{background:radial-gradient(1100px 640px at 88% 4%,#3a86ff14,transparent 62%),var(--light);color:var(--ink)}
+.dark{background:radial-gradient(1200px 760px at 22% 18%,#5064ff30,transparent 62%),var(--navy);color:#f3f5ff}
+h1,h2,h3,.bal{text-wrap:balance}
+p,li{text-wrap:pretty}
+.slide [data-b]{transition:opacity .42s ease,translate .42s cubic-bezier(.2,.7,.2,1)}
+.slide [data-b].pre{opacity:0;translate:0 26px}
+
+/* tiêu đề chung */
+.eyebrow{position:absolute;top:60px;left:96px;font:600 24px/1.25 var(--fs);color:var(--muted);white-space:nowrap}
+.eyebrow b{color:var(--blue);font-weight:600}
+.title{position:absolute;top:100px;left:96px;font:700 54px/1.2 var(--fd);white-space:nowrap;color:var(--ink);letter-spacing:-.01em}
+.em{font-style:normal;background:linear-gradient(90deg,var(--blue-d) 0%,var(--blue) 55%,var(--brand) 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.em3{font-style:normal;background:linear-gradient(172deg,#8fd6ff 22%,#4fa6ff 50%,#3f6fe8 82%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.pg{position:absolute;right:40px;bottom:26px;font:500 16px var(--fs);color:#8e95b8;opacity:.8;z-index:50}
+.src{position:absolute;left:96px;bottom:30px;width:1600px;font:400 16px/1.4 var(--fs);color:var(--subtle)}
+.src b{color:var(--muted);font-weight:600}
+.dark .src{color:#8e95b8}
+.wrap{position:absolute;left:96px;top:210px;width:1728px;height:800px}
+
+/* card */
+.card{background:#fff;border:1px solid var(--line);border-radius:22px;box-shadow:0 18px 40px #1d2a5a10;padding:28px 32px}
+.k{font:600 16px var(--fs);letter-spacing:.08em;color:var(--subtle);text-transform:uppercase}
+.h{margin-top:8px;font:700 30px/1.22 var(--fd);color:var(--ink)}
+.p{margin-top:10px;font:400 21px/1.45 var(--fs);color:#2c3456}
+.p b{color:var(--ink);font-weight:600}
+.ul{list-style:none;margin-top:14px;display:flex;flex-direction:column;gap:12px}
+.ul li{position:relative;padding-left:24px;font:400 21px/1.42 var(--fs);color:#2c3456}
+.ul li::before{content:"";position:absolute;left:3px;top:12px;width:9px;height:9px;border-radius:50%;background:var(--blue)}
+.ul li b{color:var(--ink);font-weight:600}
+.pill{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:999px;background:#eef3fd;font:600 17px var(--fs);color:var(--blue-d);white-space:nowrap}
+.pill.g{background:#e3f6ec;color:#0f6b43}.pill.r{background:#fdecec;color:#b42318}.pill.y{background:#fff4e0;color:#8a4b00}.pill.n{background:#eef0f5;color:#5d6585}
+
+/* bìa */
+.cv-tag{position:absolute;top:200px;left:0;width:1920px;display:flex;justify-content:center}
+.cv-tag span{display:inline-flex;align-items:center;gap:14px;padding:12px 28px;border-radius:999px;border:1px solid #a0b4ff59;background:#5a96ff24;font:500 26px var(--fs);color:#e4e8ff}
+.cv-tag span i{width:14px;height:14px;border-radius:50%;background:#5ab8ff;box-shadow:0 0 16px #5ab8ffe6}
+.cv-title{position:absolute;top:285px;left:0;width:1920px;text-align:center}
+.cv-title p{font:700 64px/1.3 var(--fd);color:#fff;white-space:nowrap;letter-spacing:-.01em}
+.cv-en{position:absolute;top:560px;left:0;width:1920px;text-align:center;font:italic 400 30px/1.45 var(--fs);color:#9fc4ff}
+.cv-sub{position:absolute;top:680px;left:0;width:1920px;text-align:center;font:400 30px/1.5 var(--fs);color:#cdd5f5}
+.cv-sub b{color:#fff;font-weight:500}
+.cv-who{position:absolute;top:800px;left:0;width:1920px;display:flex;justify-content:center;gap:22px}
+.cv-who div{padding:14px 28px;border-radius:18px;background:#ffffff10;border:1px solid #a0b4ff33;font:400 21px/1.4 var(--fs);color:#b9c0e4;text-align:center}
+.cv-who div b{display:block;font:700 25px var(--fd);color:#fff}
+.cv-date{position:absolute;bottom:64px;left:0;width:1920px;text-align:center;font:500 22px var(--fs);color:#8e95b8;letter-spacing:.04em}
+
+/* nội dung */
+.ag-row{position:absolute;left:96px;width:1728px;height:118px;background:#fff;border:1px solid var(--line);border-radius:22px;box-shadow:0 18px 40px #1d2a5a0f;display:flex;align-items:center}
+.ag-num{width:170px;flex:none;text-align:center;font:800 58px/1 var(--fd);background:linear-gradient(180deg,#6cc4ff,#2f6fe0 60%,#1d4fb8);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.ag-main{flex:1;min-width:0;border-left:2px solid #e6ebf5;padding-left:40px}
+.ag-t{font:700 33px/1.2 var(--fd);color:var(--ink)}
+.ag-s{margin-top:6px;font:400 21px/1.35 var(--fs);color:var(--muted)}
+.ag-s b{color:var(--blue);font-weight:600}
+
+/* stat */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:20px;padding:22px 24px;box-shadow:0 14px 30px #1d2a5a0d;display:flex;flex-direction:column;min-height:228px}
+.stat .v{font:800 52px/1.05 var(--fd);background:linear-gradient(180deg,#4fa6ff,#2f6fe0 60%,#1d4fb8);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;white-space:nowrap}
+.stat .v small{font-size:26px}
+.stat .d{margin-top:10px;font:400 19px/1.4 var(--fs);color:#2c3456}
+.stat .s{margin-top:auto;padding-top:10px;font:400 15px/1.3 var(--fs);color:var(--subtle)}
+.stat.warn .v{background:linear-gradient(180deg,#f0a35a,#c0562b);-webkit-background-clip:text;background-clip:text}
+.lay{display:flex;align-items:center;gap:16px;margin:0 0 14px;font:700 24px var(--fd);color:var(--blue-d);white-space:nowrap}
+.lay::after{content:"";flex:1;height:2px;background:linear-gradient(90deg,#2f6fe055,#2f6fe000)}
+.concl{margin-top:22px;display:flex;align-items:center;gap:16px;padding:18px 28px;border-radius:18px;background:linear-gradient(170deg,#12205a 0%,#0b1440 70%);color:#dfe5fb;font:400 22px/1.4 var(--fs)}
+.concl b{color:#fff;font-weight:600}
+.concl i{flex:none;width:12px;height:12px;border-radius:50%;background:var(--sky);box-shadow:0 0 0 6px #6cc0ff33}
+
+/* bảng */
+.tbl{width:100%;border-collapse:separate;border-spacing:0;background:#fff;border:1px solid var(--line);border-radius:20px;overflow:hidden;box-shadow:0 18px 40px #1d2a5a10}
+.tbl th{font:600 16px var(--fs);letter-spacing:.06em;text-transform:uppercase;color:var(--subtle);text-align:left;padding:14px 18px;background:#f5f7fc;border-bottom:1px solid var(--line)}
+.tbl td{font:400 19px/1.38 var(--fs);color:#2c3456;padding:11px 18px;border-bottom:1px solid #eef1f7;vertical-align:top}
+.tbl tr:last-child td{border-bottom:none}
+.tbl td.c{font-weight:700;color:var(--ink);white-space:nowrap;font-family:var(--fd)}
+.tbl td.sm{font-size:16px;color:var(--subtle)}
+.tbl tr.grp td{background:#eef3fd;font:700 18px var(--fd);color:var(--blue-d);padding:9px 18px}
+.tbl tr.grp td span{font:400 16px var(--fs);color:var(--muted);margin-left:10px}
+.tbl.tight td{padding:7px 18px;font-size:18px}
+.tbl.tight tr.grp td{padding:6px 18px}
+.tbl.tight th{padding:10px 18px}
+.wrap.top{align-items:start}
+
+/* mô hình */
+.mdl{position:absolute;left:96px;top:200px;width:1728px;height:800px}
+.mdl svg{width:1728px;height:800px}
+.bx text{font-family:var(--fs)}
+.legend{position:absolute;left:96px;bottom:70px;display:flex;gap:34px;font:400 19px var(--fs);color:#2c3456}
+.legend span{display:flex;align-items:center;gap:10px}
+.legend i{display:inline-block;width:46px;height:0;border-top:4px solid #141a33}
+.legend i.ns{border-top:4px dashed #9aa3bd}.legend i.bad{border-top:4px dashed var(--bad)}
+
+/* chuyển phần */
+.ch-k{position:absolute;left:160px;top:330px;font:600 30px var(--fs);color:#9cc4ff;letter-spacing:.06em}
+.ch-t{position:absolute;left:160px;top:384px;font:700 86px/1.25 var(--fd);color:#fff;white-space:nowrap}
+.ch-s{position:absolute;left:160px;top:620px;width:1500px;font:400 32px/1.45 var(--fs);color:#cdd5f5}
+.ch-s b{color:#fff;font-weight:500}
+
+/* quy trình */
+.flow{display:flex;gap:14px}
+.fs{flex:1;background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px 16px;box-shadow:0 12px 26px #1d2a5a0d;position:relative}
+.fs .n{width:42px;height:42px;border-radius:50%;background:var(--blue);color:#fff;display:grid;place-items:center;font:800 19px var(--fd)}
+.fs.q .n{background:var(--ok)}
+.fs b{display:block;margin-top:12px;font:700 20px/1.25 var(--fd);color:var(--ink)}
+.fs span{display:block;margin-top:6px;font:400 16px/1.38 var(--fs);color:var(--muted)}
+
+/* timeline Base */
+.tl{position:relative;display:flex;justify-content:space-between;padding-top:44px}
+.tl::before{content:"";position:absolute;left:40px;right:40px;top:58px;height:4px;border-radius:2px;background:linear-gradient(90deg,#c3cbe0,var(--blue) 40%,var(--brand))}
+.tl .it{position:relative;width:250px;text-align:center}
+.tl .dot{width:30px;height:30px;margin:0 auto;border-radius:50%;background:#fff;border:5px solid var(--blue)}
+.tl .it.now .dot{background:var(--blue);border-color:#cfe0fb;box-shadow:0 0 0 8px #2f6fe022}
+.tl .y{margin-top:12px;font:800 24px var(--fd);color:var(--blue-d)}
+.tl .t{margin-top:6px;font:400 17px/1.38 var(--fs);color:#2c3456}
+
+/* cảm ơn */
+.ty-t{position:absolute;top:400px;left:0;width:1920px;text-align:center;font:800 110px/1.15 var(--fd);color:#fff;text-shadow:0 0 48px #3a6bff80;white-space:nowrap}
+.ty-s{position:absolute;top:566px;left:0;width:1920px;text-align:center;font:500 32px/1.4 var(--fs);color:#cdd5f5}
+.ty-s b{color:var(--gold);font-weight:600}
+
+.hint{position:absolute;left:40px;bottom:26px;font:400 15px var(--fs);color:#8e95b8;opacity:.7;z-index:50}
+.navb{position:absolute;right:120px;bottom:16px;display:flex;gap:10px;z-index:50}
+.navb button{width:44px;height:44px;border-radius:50%;border:1px solid #d3daea;background:#ffffffe6;display:grid;place-items:center;cursor:pointer;font:700 20px var(--fs);color:var(--ink)}
+</style>
+</head>
+<body>
+<div id="stage">
+
+<!-- ============ 1. BÌA ============ -->
+<section class="slide dark" data-name="Bìa">
+  <svg viewBox="0 0 1920 1080" style="position:absolute;inset:0;width:1920px;height:1080px;pointer-events:none" aria-hidden="true"><defs><radialGradient id="cvg" cx="50%" cy="0%" r="70%"><stop offset="0" stop-color="#3a86ff" stop-opacity=".32"/><stop offset="1" stop-color="#3a86ff" stop-opacity="0"/></radialGradient></defs><rect width="1920" height="1080" fill="url(#cvg)"/></svg>
+  <div class="cv-tag" data-b="1"><span><i></i>Khóa luận tốt nghiệp EBDB5 · Đề cương chi tiết</span></div>
+  <div class="cv-title" data-b="2"><p><span class="em3">Effective use</span> hệ thống BI và các nhân tố</p><p>ảnh hưởng đến hiệu quả ra quyết định dựa trên</p><p>dữ liệu của nhân viên: Nghiên cứu tại Base.vn</p></div>
+  <p class="cv-en" data-b="3">Effective Use of Business Intelligence Systems and Factors Influencing<br>Employees’ Data-Driven Decision-Making Performance: Evidence from Base.vn</p>
+  <p class="cv-sub" data-b="4">Kế thừa mô hình <b>Trieu (2023), Information Technology &amp; People</b> · khung dữ liệu của <b>Base Data Service</b></p>
+  <div class="cv-who" data-b="5">
+    <div><b>Đỗ Thanh Bình</b>Sinh viên EBDB5 · ĐH Kinh tế Quốc dân</div>
+    <div><b>Phòng Data Service</b>Công ty CP Base Enterprise</div>
+  </div>
+  <p class="cv-date">Tháng 10/2026</p>
+</section>
+
+<!-- ============ 2. NỘI DUNG ============ -->
+<section class="slide light" data-name="Nội dung">
+  <p class="eyebrow">Đề cương chi tiết · <b>Nội dung</b></p>
+  <p class="title">Sáu phần của <em class="em">đề cương</em></p>
+  <div class="ag-row" style="top:218px" data-b="1"><div class="ag-num">01</div><div class="ag-main"><p class="ag-t">Tính cấp thiết</p><p class="ag-s">Đầu tư nhiều vào BI, dùng chưa hiệu quả → Base.vn và Data Service → <b>chuỗi vận hành, dữ liệu, BI, quyết định</b></p></div></div>
+  <div class="ag-row" style="top:348px" data-b="2"><div class="ag-num">02</div><div class="ag-main"><p class="ag-t">Mục tiêu, câu hỏi và phạm vi nghiên cứu</p><p class="ag-s">3 mục tiêu · 4 câu hỏi · 3 văn phòng Hà Nội, TP.HCM, Đà Nẵng</p></div></div>
+  <div class="ag-row" style="top:478px" data-b="3"><div class="ag-num">03</div><div class="ag-main"><p class="ag-t">Mô hình kế thừa và giả thuyết</p><p class="ag-s">Kế thừa nguyên Trieu (2023) · <b>6 biến, 9 giả thuyết</b> + H6 (MGA)</p></div></div>
+  <div class="ag-row" style="top:608px" data-b="4"><div class="ag-num">04</div><div class="ag-main"><p class="ag-t">Thang đo, bảng hỏi và phỏng vấn sâu</p><p class="ag-s">19 câu Likert 5 mức · 9–11 người phỏng vấn (nội bộ + khách hàng)</p></div></div>
+  <div class="ag-row" style="top:738px" data-b="5"><div class="ag-num">05</div><div class="ag-main"><p class="ag-t">Phương pháp và dữ liệu</p><p class="ag-s">Hỗn hợp: định lượng trước, định tính sau · <b>SmartPLS 4</b></p></div></div>
+  <div class="ag-row" style="top:868px" data-b="6"><div class="ag-num">06</div><div class="ag-main"><p class="ag-t">Kết cấu khóa luận</p><p class="ag-s">5 chương · khoảng 61 trang</p></div></div>
+</section>
+
+<!-- ============ 3a. KHÁI NIỆM ============ -->
+<section class="slide light" data-name="Khái niệm: hệ thống BI và effective use">
+  <p class="eyebrow">Phần 1 · <b>Tính cấp thiết</b> · khái niệm</p>
+  <p class="title">Hệ thống BI là gì, <em class="em">thế nào là effective use</em></p>
+  <div class="wrap" style="top:200px">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:28px">
+    <div class="card" data-b="1" style="display:flex;flex-direction:column">
+      <p class="k">Khái niệm 1 · Hệ thống BI</p>
+      <p class="h">Hệ thống báo cáo xây trên kho dữ liệu, biến <span class="em">dữ liệu vận hành</span> thành dashboard, báo cáo để hỗ trợ ra quyết định</p>
+      <ul class="ul">
+        <li><b>Chuỗi:</b> hệ thống nguồn (nơi nhập liệu hằng ngày) → kho dữ liệu → <b>hệ thống BI</b> → quyết định.</li>
+        <li><b>Tại Base.vn:</b> toàn bộ báo cáo do phòng Data Service xây, ở mọi dạng: xSpace, Power BI, App BI, Google Sheet, HTML.</li>
+        <li><b>Không phải BI:</b> phần mềm Base (Work, HRM, CRM, Finance…) là <b>hệ thống nguồn</b>, chỉ vào mô hình qua chất lượng dữ liệu.</li>
+      </ul>
+    </div>
+    <div class="card" data-b="2" style="display:flex;flex-direction:column">
+      <p class="k">Khái niệm 2 · Effective use hệ thống BI</p>
+      <p class="h">Không chỉ mở dashboard, mà <span class="em">dựa vào</span> và <span class="em">khai thác sâu</span> hệ thống BI khi ra quyết định</p>
+      <ul class="ul">
+        <li><b>Mức độ dựa vào (Dependence · BSDU):</b> dùng BI làm căn cứ chính khi ra quyết định, khó quyết định đúng nếu thiếu BI.</li>
+        <li><b>Mức độ khai thác sâu (Infusion · BSI):</b> dùng hết tính năng như lọc, drill-down, cảnh báo, thay vì xem số tổng rồi xuất Excel tự tính.</li>
+        <li><b>Theo Trieu (2023, tr. 412):</b> “This reflects the effective use of BI systems”.</li>
+      </ul>
+      <p style="margin-top:auto;padding-top:14px;display:flex;gap:10px"><span class="pill g">Effective use = BSDU + BSI</span></p>
+    </div>
+  </div>
+  <div class="concl" style="margin-top:26px" data-b="3"><i></i><span>Câu hỏi của khóa luận không phải doanh nghiệp <b>có hệ thống BI hay chưa</b>, mà nhân viên <b>dùng hệ thống BI hiệu quả đến đâu</b> và điều gì quyết định mức độ đó.</span></div></div>
+</section>
+
+<!-- ============ 3. CẤP THIẾT 1-2 ============ -->
+<section class="slide light" data-name="Cấp thiết: thế giới và Việt Nam">
+  <p class="eyebrow">Phần 1 · <b>Tính cấp thiết</b></p>
+  <p class="title">Đầu tư nhiều vào BI, <em class="em">dùng chưa hiệu quả</em></p>
+  <div class="wrap" style="top:200px">
+    <p class="lay" data-b="1">Vế 1 · Doanh nghiệp đầu tư mạnh vào dữ liệu và hệ thống BI</p>
+    <div class="stats" data-b="1" style="grid-template-columns:repeat(3,1fr)">
+      <div class="stat" style="min-height:0"><p class="v">270+ <small>tỷ USD</small></p><p class="d">Chi tiêu toàn cầu cho dữ liệu lớn và phân tích dự kiến năm 2022</p><p class="s">IDC (2019), dẫn theo Trieu (2023)</p></div>
+      <div class="stat" style="min-height:0"><p class="v">63,5%</p><p class="d">Doanh nghiệp Việt Nam đang phát triển cần giải pháp BI, báo cáo thông minh</p><p class="s">Bộ KH&amp;ĐT &amp; USAID LinkSME (2021)</p></div>
+      <div class="stat" style="min-height:0"><p class="v">300+</p><p class="d">Báo cáo quản trị Base Data Service đã xây cho hơn 80 khách hàng</p><p class="s">Base Data Service (2026)</p></div>
+    </div>
+    <p class="lay" style="margin-top:24px" data-b="2">Vế 2 · Nhưng hệ thống BI chưa được dùng hiệu quả</p>
+    <div class="stats" data-b="2">
+      <div class="stat warn" style="min-height:0"><p class="v">≈ 85%</p><p class="d">dự án BI <b>thất bại</b>; Trieu (2023) cho rằng nguyên nhân chính là hệ thống không được dùng thực sự</p><p class="s">Newman (2018), dẫn theo Trieu (2023)</p></div>
+      <div class="stat warn" style="min-height:0"><p class="v">25%</p><p class="d">nhân viên <b>thực sự dùng</b> công cụ BI, gần như không tăng sau 7 năm</p><p class="s">BARC &amp; Eckerson Group (2022)</p></div>
+      <div class="stat warn" style="min-height:0"><p class="v">12,9 <small>triệu USD</small></p><p class="d">thiệt hại mỗi năm của một tổ chức do <b>dữ liệu kém chất lượng</b></p><p class="s">Gartner (2021)</p></div>
+      <div class="stat warn" style="min-height:0"><p class="v">78%</p><p class="d">tổ chức cho rằng rào cản trở thành <b>dựa trên dữ liệu</b> là văn hóa, con người, quy trình</p><p class="s">Wavestone (2024)</p></div>
+    </div>
+    <div class="concl" style="margin-top:26px" data-b="3"><i></i><span>Có hệ thống BI chưa đủ. Giá trị nằm ở <b>effective use hệ thống BI</b>: nhân viên dựa vào và khai thác sâu hệ thống khi ra quyết định (Trieu, 2023). Trong mô hình của Trieu (2023), hai nguồn lực tổ chức tác động đến effective use là <b>chất lượng dữ liệu nguồn</b> và <b>văn hóa dựa trên dữ liệu</b>.</span></div>
+  </div>
+</section>
+
+<!-- ============ 4. CẤP THIẾT 3: BASE ============ -->
+<section class="slide light" data-name="Cấp thiết: Base.vn">
+  <p class="eyebrow">Phần 1 · <b>Tính cấp thiết</b></p>
+  <p class="title">Base.vn <em class="em">xây BI cho khách và cho chính mình</em></p>
+  <div class="wrap top" style="display:grid;grid-template-columns:780px 1fr;gap:28px">
+    <div class="card" data-b="1" style="display:flex;flex-direction:column">
+      <p class="k">Lớp 3 · Đặc thù Base.vn</p>
+      <p class="h">Dữ liệu sinh ra trên Base, câu hỏi là <span class="em">hệ thống báo cáo (BI) được dùng hiệu quả đến đâu</span></p>
+      <p class="p">Base.vn có <b>hơn 12.000 doanh nghiệp</b> dùng phần mềm Base. Phòng <b>Data Service</b> gom dữ liệu từ Base vào kho dữ liệu và xây <b>hệ thống báo cáo (BI)</b> cho khách hàng và cho chính nội bộ Base: dashboard trên xSpace, Power BI, <b>App BI</b> (app báo cáo tự code thay cho Power BI), Google Sheet, trang HTML…</p>
+      <ul class="ul">
+        <li><b>Dữ liệu là chìa khóa:</b> vận hành nhiều trên phần mềm Base sinh ra nhiều dữ liệu, là nền tảng để phát triển và cải thiện sản phẩm.</li>
+        <li><b>Nhưng chưa đồng đều:</b> không phải nhân viên nào cũng có effective use hệ thống BI.</li>
+        <li><b>Vấn đề của Data Service:</b> phòng xây báo cáo cho cả nội bộ và khách hàng, nên cần biết <b>nguyên nhân thực sự</b> giúp effective use để cải thiện báo cáo.</li>
+      </ul>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:18px">
+      <p class="lay" data-b="2" style="margin:0">Ba biểu hiện: hệ thống BI, dữ liệu, tổ chức</p>
+      <div class="card" data-b="2" style="padding:20px 28px"><p class="k">(a) Hệ thống BI · xem nhưng chưa khai thác</p><p class="p" style="margin-top:6px">Mở dashboard để xem số tổng; ít lọc, drill-down, dùng cảnh báo. Cần số chi tiết thì vẫn xuất Excel tự tính.</p><p style="margin-top:10px;display:flex;gap:10px"><span class="pill g">Effective use hệ thống BI · BSDU, BSI</span></p></div>
+      <div class="card" data-b="3" style="padding:20px 28px"><p class="k">(b) Dữ liệu nguồn · Base chưa ghi nhận đúng thực tế</p><p class="p" style="margin-top:6px">Trạng thái công việc không được cập nhật, số giữa các ứng dụng và phòng ban không khớp, nên số trên dashboard thiếu tin cậy.</p><p style="margin-top:10px;display:flex;gap:10px"><span class="pill">Chất lượng dữ liệu nguồn · DQSS</span></p></div>
+      <div class="card" data-b="4" style="padding:20px 28px"><p class="k">(c) Tổ chức · có dữ liệu nhưng ít dùng để quyết định</p><p class="p" style="margin-top:6px">Dashboard chủ yếu phục vụ quản lý xem; nhân viên ít dùng để ra quyết định, nhiều việc vẫn chờ cấp trên.</p><p style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap"><span class="pill">DBC</span><span class="pill">DMA</span><span class="pill y">H6</span></p></div>
+    </div>
+  </div>
+  <p class="src">Nguồn: base.vn (2026); Base Data Service (2026); quan sát của tác giả tại phòng Data Service (2026); mô hình Trieu (2023).</p>
+</section>
+
+<!-- ============ 4b. DỮ LIỆU NỘI BỘ ============ -->
+<section class="slide light" data-name="Dữ liệu nội bộ">
+  <p class="eyebrow">Phần 1 · <b>Tính cấp thiết</b> · dữ liệu nội bộ Base.vn</p>
+  <p class="title">Có hệ thống BI, <em class="em">chưa có effective use</em></p>
+  <div class="wrap" style="top:200px">
+    <p class="lay" data-b="1">Dữ liệu và hệ thống BI nội bộ đã sẵn sàng (9/2026)</p>
+    <div class="stats" data-b="1">
+      <div class="stat" style="min-height:0"><p class="v">5</p><p class="d">dạng báo cáo nội bộ do Data Service xây: xSpace, Power BI, <b>App BI</b>, Google Sheet, HTML</p><p class="s">Data Service</p></div>
+      <div class="stat" style="min-height:0"><p class="v">46</p><p class="d">dashboard nội bộ đang chạy cho các phòng ban</p><p class="s">Danh mục dashboard · Data Service</p></div>
+      <div class="stat" style="min-height:0"><p class="v">96%</p><p class="d">nhân sự nhập liệu trên phần mềm Base hằng ngày, là <b>nguồn dữ liệu</b> của BI</p><p class="s">Nhật ký hệ thống · Data Service</p></div>
+      <div class="stat" style="min-height:0"><p class="v">420</p><p class="d">nhân sự: Hà Nội 260 · TP.HCM 130 · Đà Nẵng 30</p><p class="s">Phòng Nhân sự Base.vn (10/2026)</p></div>
+    </div>
+    <p class="lay" style="margin-top:24px" data-b="2">Nhưng effective use hệ thống BI còn thấp</p>
+    <div class="stats" data-b="2">
+      <div class="stat warn" style="min-height:0"><p class="v">31%</p><p class="d"><b>Dựa vào BI:</b> nhân sự mở dashboard ít nhất 1 lần mỗi tuần</p><p class="s">Nhật ký hệ thống BI · Data Service</p></div>
+      <div class="stat warn" style="min-height:0"><p class="v">14%</p><p class="d"><b>Khai thác sâu BI:</b> người xem có dùng bộ lọc, drill-down hoặc cảnh báo</p><p class="s">Nhật ký hệ thống BI · Data Service</p></div>
+      <div class="stat warn" style="min-height:0"><p class="v">23</p><p class="d"><b>Dữ liệu nguồn:</b> chỉ số trùng tên nhưng khác cách tính giữa các ứng dụng, phòng ban</p><p class="s">Rà soát từ điển chỉ số · Data Service</p></div>
+      <div class="stat warn" style="min-height:0"><p class="v">72%</p><p class="d"><b>Tổ chức:</b> lượt xem dashboard đến từ 85 quản lý, tức 20% nhân sự</p><p class="s">Nhật ký hệ thống BI · Data Service</p></div>
+    </div>
+    <div class="concl" style="margin-top:26px" data-b="3"><i></i><span>Dữ liệu và dashboard đã có, nhưng chỉ khoảng <b>1/3</b> nhân sự dựa vào hệ thống BI, rất ít người khai thác sâu, và BI chủ yếu phục vụ quản lý xem.</span></div>
+  </div>
+</section>
+
+<!-- ============ 4c. CHUỖI DATA SERVICE ============ -->
+<section class="slide light" data-name="Vận hành đến quyết định">
+  <p class="eyebrow">Phần 1 · <b>Tính cấp thiết</b> · khung của phòng Base Data Service</p>
+  <p class="title">Dữ liệu bắt nguồn <em class="em">từ vận hành</em></p>
+  <div class="wrap top" style="height:auto">
+    <p class="lay" data-b="1">Chuỗi giá trị dữ liệu: vận hành → dữ liệu → báo cáo → ra quyết định</p>
+    <div data-b="1" style="display:grid;grid-template-columns:1fr 44px 1fr 44px 1fr 44px 1fr;align-items:stretch">
+      <div class="card" style="padding:20px 24px;display:flex;flex-direction:column"><p class="k">① Vận hành</p><p class="p" style="font-size:18px;margin-top:6px">Nhân viên làm việc trên Base Work, HRM, CRM, Finance… Dữ liệu <b>sinh ra từ chính công việc hằng ngày</b>.</p><p style="margin-top:auto;padding-top:12px"><span class="pill n">Hệ thống nguồn</span></p></div>
+      <div style="display:grid;place-items:center;font:800 34px var(--fd);color:#9aa3bd">→</div>
+      <div class="card" style="padding:20px 24px;display:flex;flex-direction:column"><p class="k">② Dữ liệu</p><p class="p" style="font-size:18px;margin-top:6px">Tích hợp, chuẩn hóa vào <b>kho dữ liệu tập trung</b>, một nguồn số liệu chung cho cả công ty.</p><p style="margin-top:auto;padding-top:12px"><span class="pill">DQSS</span></p></div>
+      <div style="display:grid;place-items:center;font:800 34px var(--fd);color:#9aa3bd">→</div>
+      <div class="card" style="padding:20px 24px;display:flex;flex-direction:column;border:2px solid #14915c"><p class="k" style="color:#0f6b43">③ Báo cáo</p><p class="p" style="font-size:18px;margin-top:6px"><b>Hệ thống báo cáo (BI)</b> do Data Service xây: xSpace, Power BI, App BI, Google Sheet, HTML…; dashboard, KPI, cảnh báo. Người dùng <b>dựa vào</b> và <b>khai thác sâu</b> đến đâu.</p><p style="margin-top:auto;padding-top:12px"><span class="pill g">Effective use hệ thống BI</span></p></div>
+      <div style="display:grid;place-items:center;font:800 34px var(--fd);color:#9aa3bd">→</div>
+      <div class="card" style="padding:20px 24px;display:flex;flex-direction:column"><p class="k" style="color:#8a4b00">④ Ra quyết định</p><p class="p" style="font-size:18px;margin-top:6px">Quyết định dựa trên dữ liệu thay cho cảm tính, kịp thời hơn, đạt KPI và mục tiêu.</p><p style="margin-top:auto;padding-top:12px"><span class="pill y">DMP</span></p></div>
+    </div>
+    <p class="lay" style="margin-top:26px" data-b="2">5 tầng nền tảng số hóa quản trị</p>
+    <div data-b="2" style="display:grid;grid-template-columns:repeat(5,1fr);gap:16px">
+      <div class="card" style="padding:18px 20px"><p class="k">Tầng 1</p><p class="h" style="font-size:21px">Nền tảng dữ liệu</p><p class="p" style="font-size:16px;margin-top:4px">Chuẩn hóa cấu trúc, thiết lập dữ liệu cốt lõi</p></div>
+      <div class="card" style="padding:18px 20px"><p class="k">Tầng 2</p><p class="h" style="font-size:21px">Vận hành quy trình</p><p class="p" style="font-size:16px;margin-top:4px">Chuẩn hóa quy trình, phối hợp liên phòng ban</p></div>
+      <div class="card" style="padding:18px 20px"><p class="k">Tầng 3</p><p class="h" style="font-size:21px">Số hóa nguồn dữ liệu</p><p class="p" style="font-size:16px;margin-top:4px">Thu từ hệ thống, file, biểu mẫu; giảm nhập tay</p></div>
+      <div class="card" style="padding:18px 20px"><p class="k">Tầng 4</p><p class="h" style="font-size:21px">Kho dữ liệu tập trung</p><p class="p" style="font-size:16px;margin-top:4px">Single source of truth, lưu lịch sử, mở rộng dần</p></div>
+      <div class="card" style="padding:18px 20px"><p class="k">Tầng 5</p><p class="h" style="font-size:21px">AI giám sát quản trị</p><p class="p" style="font-size:16px;margin-top:4px">Dashboard, cảnh báo, hỗ trợ ra quyết định</p></div>
+    </div>
+    <div class="concl" style="margin-top:24px" data-b="3"><i></i><span>Data Service đã triển khai khung này cho <b>hơn 80 khách hàng, 150 dự án, 300 báo cáo</b>. Khóa luận kiểm chứng chính chuỗi đó <b>trong nội bộ Base</b> (khảo sát và phỏng vấn) và <b>ở khách hàng Data Service</b> (phỏng vấn): dữ liệu có tốt không, hệ thống BI có được dùng hiệu quả (effective use) không, quyết định có tốt hơn không.</span></div>
+  </div>
+  <p class="src">Nguồn: Base Data Service (2026), đề xuất dịch vụ "Biến dữ liệu vận hành thành quyết định tăng trưởng".</p>
+</section>
+
+<!-- ============ 5. MỤC TIÊU & CÂU HỎI ============ -->
+<section class="slide light" data-name="Mục tiêu và câu hỏi">
+  <p class="eyebrow">Phần 2 · <b>Mục tiêu và câu hỏi nghiên cứu</b></p>
+  <p class="title">Ba mục tiêu, <em class="em">bốn câu hỏi</em></p>
+  <div class="wrap" style="display:grid;grid-template-columns:1fr 1fr;gap:28px">
+    <div class="card" data-b="1">
+      <p class="k">Mục tiêu tổng quát</p>
+      <p class="p" style="font-size:22px">Đánh giá tác động của <b>effective use hệ thống BI</b> cùng các nhân tố dữ liệu và tổ chức đến <b>hiệu quả ra quyết định dựa trên dữ liệu</b> của nhân viên Base.vn, từ đó đề xuất giải pháp.</p>
+      <p class="k" style="margin-top:26px">Mục tiêu cụ thể</p>
+      <ul class="ul">
+        <li>Hệ thống hóa lý thuyết về effective use hệ thống BI và ra quyết định dựa trên dữ liệu, chọn mô hình kế thừa phù hợp.</li>
+        <li>Đo lường tác động của văn hóa dữ liệu, chất lượng dữ liệu nguồn và quyền tự chủ đến effective use hệ thống BI và hiệu quả ra quyết định dựa trên dữ liệu.</li>
+        <li>Đề xuất giải pháp nâng cao effective use hệ thống BI và ra quyết định dựa trên dữ liệu tại Base.vn.</li>
+      </ul>
+    </div>
+    <div class="card" data-b="2">
+      <p class="k">Câu hỏi nghiên cứu</p>
+      <ul class="ul" style="gap:18px">
+        <li><b>RQ1.</b> Effective use hệ thống BI và hiệu quả ra quyết định dựa trên dữ liệu được đo lường thế nào trong bối cảnh Base.vn?</li>
+        <li><b>RQ2.</b> Văn hóa dữ liệu và chất lượng dữ liệu nguồn ảnh hưởng thế nào đến effective use hệ thống BI (mức độ dựa vào và khai thác sâu hệ thống BI)?</li>
+        <li><b>RQ3.</b> Effective use hệ thống BI, văn hóa dữ liệu và quyền tự chủ ảnh hưởng thế nào đến hiệu quả ra quyết định dựa trên dữ liệu? Có khác nhau giữa các nhóm người dùng không?</li>
+        <li><b>RQ4.</b> Base.vn cần làm gì để nâng cao effective use hệ thống BI và ra quyết định dựa trên dữ liệu, cho nhân viên nội bộ và cho khách hàng Data Service?</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 6. PHẠM VI ============ -->
+<section class="slide light" data-name="Phạm vi">
+  <p class="eyebrow">Phần 2 · <b>Phạm vi nghiên cứu</b></p>
+  <p class="title">Ai, ở đâu, <em class="em">khi nào</em></p>
+  <div class="wrap" style="display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto 1fr;gap:24px">
+    <div class="card" data-b="1">
+      <p class="k">Nội dung</p>
+      <p class="p"><b>Effective use hệ thống BI</b> và <b>hiệu quả ra quyết định dựa trên dữ liệu</b> của nhân viên; các nhân tố: chất lượng dữ liệu nguồn trên phần mềm Base, văn hóa dữ liệu, quyền tự chủ ra quyết định.</p>
+      <p style="margin-top:14px;display:flex;flex-wrap:wrap;gap:10px"><span class="pill g">xSpace</span><span class="pill g">Power BI</span><span class="pill g">App BI</span><span class="pill g">Google Sheet</span><span class="pill g">HTML</span><span class="pill n">Nguồn dữ liệu: Base Work, HRM, CRM, Finance</span></p>
+    </div>
+    <div class="card" data-b="1">
+      <p class="k">Đối tượng khảo sát</p>
+      <p class="p">Nhân viên và quản lý Base.vn dùng hệ thống báo cáo (BI) do Data Service xây <b>từ 3 tháng trở lên</b> để ra quyết định. <b>Phỏng vấn sâu</b> thêm nhân sự Data Service và khách hàng của Data Service (khách hàng chỉ phỏng vấn, không khảo sát).</p>
+      <p class="p">Tổng thể <b>420 nhân sự</b>, trong đó <b>85 quản lý</b> từ trưởng nhóm trở lên (Phòng Nhân sự Base.vn, 10/2026).</p>
+    </div>
+    <div class="card" data-b="2">
+      <p class="k">Không gian · 3 văn phòng</p>
+      <ul class="ul">
+        <li><b>Hà Nội (trụ sở):</b> Tầng 16, Tòa HUD Tower, 37 Lê Văn Lương, Thanh Xuân</li>
+        <li><b>TP. Hồ Chí Minh:</b> Tầng 2, Tòa Jasmine 1, Hà Đô Centrosa Garden, 200 Đường 3/2, P. Hòa Hưng</li>
+        <li><b>Đà Nẵng:</b> Tầng 11, Tòa nhà VietinBank, 36 Trần Quốc Toản, Hải Châu</li>
+      </ul>
+    </div>
+    <div class="card" data-b="3">
+      <p class="k">Thời gian</p>
+      <ul class="ul">
+        <li><b>Dữ liệu sơ cấp:</b> tháng 9 – tháng 11/2026 (khảo sát qua web app Apps Script, sau đó phỏng vấn sâu)</li>
+        <li><b>Dữ liệu thứ cấp:</b> 2016 (năm thành lập Base) – 2026; nhật ký hệ thống BI 2025–2026</li>
+      </ul>
+    </div>
+  </div>
+  <p class="src">Nguồn: base.vn/lien-he (2026).</p>
+</section>
+
+<!-- ============ 7. CHUYỂN PHẦN MÔ HÌNH ============ -->
+<section class="slide dark" data-name="Phần 3">
+  <p class="ch-k" data-b="1">PHẦN 3</p>
+  <p class="ch-t" data-b="1">Mô hình kế thừa <span class="em3">&amp; giả thuyết</span></p>
+  <p class="ch-s" data-b="2">Mô hình gốc: Trieu, V.-H. (2023). <b>Towards an understanding of actual business intelligence technology use: an individual user perspective.</b> Information Technology &amp; People, 36(1), 409–432 · n = 437 · PLS-SEM<br>Toàn bộ thang đo lấy từ Appendix của bài gốc</p>
+</section>
+
+<!-- ============ 8. MÔ HÌNH GỐC ============ -->
+<section class="slide light" data-name="Mô hình gốc">
+  <p class="eyebrow">Phần 3 · <b>Mô hình gốc</b> · Information Technology &amp; People (Q1) · bản dịch tiếng Việt</p>
+  <p class="title">Mô hình của <em class="em">Trieu (2023)</em></p>
+  <div class="mdl" style="width:1300px" data-b="1">
+    <svg viewBox="0 0 1300 790" style="width:1300px;height:790px" aria-label="Mô hình gốc Trieu 2023">
+      <defs><marker id="aK" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#141a33"/></marker></defs>
+      <rect x="20" y="20" width="380" height="740" rx="18" fill="#ffffff" fill-opacity=".6" stroke="#6a7396" stroke-width="2" stroke-dasharray="10 5 2 5"/>
+      <text x="210" y="56" text-anchor="middle" font-family="Lexend" font-weight="700" font-size="16" fill="#1d4fb8" letter-spacing="1">NGUỒN LỰC TỔ CHỨC BỔ TRỢ</text>
+      <rect x="670" y="20" width="460" height="430" rx="18" fill="#e3f6ec" fill-opacity=".5" stroke="#6a7396" stroke-width="2" stroke-dasharray="10 5 2 5"/>
+      <text x="900" y="56" text-anchor="middle" font-family="Lexend" font-weight="700" font-size="16" fill="#0f6b43" letter-spacing="1">SỬ DỤNG HỆ THỐNG BI THỰC TẾ</text>
+      <rect x="670" y="540" width="460" height="220" rx="18" fill="#fff8e6" fill-opacity=".6" stroke="#6a7396" stroke-width="2" stroke-dasharray="10 5 2 5"/>
+      <text x="1110" y="574" text-anchor="end" font-family="Lexend" font-weight="700" font-size="16" fill="#8a4b00" letter-spacing="1">TÁC ĐỘNG CỦA BI</text>
+
+      <!-- nét liền: quan hệ chính -->
+      <line x1="380" y1="150" x2="696" y2="150" stroke="#141a33" stroke-width="4" marker-end="url(#aK)"/>
+      <text x="540" y="138" text-anchor="middle" font-family="Plus Jakarta Sans" font-weight="800" font-size="18" fill="#14915c">H1a · 0,225</text>
+      <line x1="380" y1="400" x2="696" y2="370" stroke="#141a33" stroke-width="4" marker-end="url(#aK)"/>
+      <text x="540" y="412" text-anchor="middle" font-family="Plus Jakarta Sans" font-weight="800" font-size="18" fill="#14915c">H2a · 0,402</text>
+      <line x1="380" y1="670" x2="696" y2="670" stroke="#141a33" stroke-width="4" marker-end="url(#aK)"/>
+      <text x="540" y="658" text-anchor="middle" font-family="Plus Jakarta Sans" font-weight="800" font-size="18" fill="#14915c">H3 · 0,159</text>
+      <line x1="900" y1="220" x2="900" y2="296" stroke="#141a33" stroke-width="4" marker-end="url(#aK)"/>
+      <text x="916" y="266" font-family="Plus Jakarta Sans" font-weight="800" font-size="18" fill="#14915c">H4b · 0,209</text>
+      <line x1="900" y1="410" x2="900" y2="606" stroke="#141a33" stroke-width="4" marker-end="url(#aK)"/>
+      <text x="916" y="512" font-family="Plus Jakarta Sans" font-weight="800" font-size="18" fill="#14915c">H5 · 0,276</text>
+      <polyline points="1100,165 1230,165 1230,670 1104,670" fill="none" stroke="#141a33" stroke-width="4" marker-end="url(#aK)"/>
+      <text x="1240" y="420" font-family="Plus Jakarta Sans" font-weight="800" font-size="18" fill="#14915c" transform="rotate(90 1240 420)" text-anchor="middle">H4a · 0,121</text>
+      <!-- nét chấm: quan hệ phụ -->
+      <line x1="380" y1="370" x2="696" y2="195" stroke="#141a33" stroke-width="3.5" stroke-dasharray="3 6" marker-end="url(#aK)"/>
+      <text x="660" y="254" text-anchor="middle" font-family="Plus Jakarta Sans" font-weight="800" font-size="18" fill="#14915c">H2b · 0,349</text>
+      <line x1="380" y1="180" x2="696" y2="330" stroke="#141a33" stroke-width="3.5" stroke-dasharray="3 6" marker-end="url(#aK)"/>
+      <text x="470" y="196" text-anchor="middle" font-family="Plus Jakarta Sans" font-weight="800" font-size="18" fill="#14915c">H1b · 0,191</text>
+      <line x1="380" y1="205" x2="756" y2="606" stroke="#141a33" stroke-width="3.5" stroke-dasharray="3 6" marker-end="url(#aK)"/>
+      <text x="610" y="520" text-anchor="end" font-family="Plus Jakarta Sans" font-weight="800" font-size="18" fill="#14915c">H1c · 0,353</text>
+
+      <g class="bx">
+        <rect x="40" y="100" width="340" height="120" rx="14" fill="#deebf7" stroke="#2f6fe0" stroke-width="2"/>
+        <text x="210" y="150" text-anchor="middle" font-weight="700" font-size="20" fill="#141a33">Văn hóa dựa trên dữ liệu</text>
+        <text x="210" y="180" text-anchor="middle" font-size="16" fill="#4a5378">Data-Based Culture</text>
+        <rect x="40" y="330" width="340" height="120" rx="14" fill="#deebf7" stroke="#2f6fe0" stroke-width="2"/>
+        <text x="210" y="370" text-anchor="middle" font-weight="700" font-size="20" fill="#141a33">Chất lượng dữ liệu</text>
+        <text x="210" y="396" text-anchor="middle" font-weight="700" font-size="20" fill="#141a33">tại hệ thống nguồn</text>
+        <text x="210" y="426" text-anchor="middle" font-size="15" fill="#4a5378">Quality of Data in Source Systems</text>
+        <rect x="40" y="610" width="340" height="120" rx="14" fill="#deebf7" stroke="#2f6fe0" stroke-width="2"/>
+        <text x="210" y="660" text-anchor="middle" font-weight="700" font-size="20" fill="#141a33">Quyền tự chủ ra quyết định</text>
+        <text x="210" y="690" text-anchor="middle" font-size="16" fill="#4a5378">Decision-Making Autonomy</text>
+
+        <rect x="700" y="100" width="400" height="120" rx="14" fill="#e2efda" stroke="#14915c" stroke-width="2"/>
+        <text x="900" y="146" text-anchor="middle" font-weight="700" font-size="20" fill="#141a33">Mức độ phụ thuộc vào hệ thống BI</text>
+        <text x="900" y="174" text-anchor="middle" font-size="16" fill="#4a5378">BI System Dependence</text>
+        <text x="900" y="200" text-anchor="middle" font-size="15" fill="#0f6b43">R² = 0,261</text>
+        <rect x="700" y="300" width="400" height="110" rx="14" fill="#e2efda" stroke="#14915c" stroke-width="2"/>
+        <text x="900" y="342" text-anchor="middle" font-weight="700" font-size="20" fill="#141a33">Mức độ khai thác sâu hệ thống BI</text>
+        <text x="900" y="370" text-anchor="middle" font-size="16" fill="#4a5378">BI System Infusion</text>
+        <text x="900" y="395" text-anchor="middle" font-size="15" fill="#0f6b43">R² = 0,441</text>
+        <rect x="700" y="610" width="400" height="120" rx="14" fill="#fff2cc" stroke="#c39a2c" stroke-width="2"/>
+        <text x="900" y="656" text-anchor="middle" font-weight="700" font-size="20" fill="#141a33">Hiệu quả ra quyết định</text>
+        <text x="900" y="684" text-anchor="middle" font-size="16" fill="#4a5378">Decision-Making Performance</text>
+        <text x="900" y="710" text-anchor="middle" font-size="15" fill="#8a4b00">R² = 0,482</text>
+      </g>
+    </svg>
+  </div>
+  <div style="position:absolute;left:1430px;top:200px;width:394px;display:flex;flex-direction:column;gap:16px">
+    <div class="card" data-b="2" style="padding:20px 24px"><p class="k">Cách đọc</p><ul class="ul" style="font-size:17px;gap:8px"><li><b>Nét liền:</b> quan hệ chính, mỗi nguồn lực gắn với một biến</li><li><b>Nét chấm:</b> quan hệ phụ, bổ sung theo các nghiên cứu BI trước</li><li>Số sau tên giả thuyết là hệ số đường dẫn β</li></ul></div>
+    <div class="card" data-b="3" style="padding:20px 24px"><p class="k" style="color:#0f6b43">Kết quả</p><p class="p" style="font-size:17px;margin-top:6px"><b>Cả 9 giả thuyết được ủng hộ.</b> Mô hình giải thích 48,2% hiệu quả ra quyết định.</p></div>
+    <div class="card" data-b="4" style="padding:20px 24px"><p class="k">Mẫu và phương pháp</p><p class="p" style="font-size:17px;margin-top:6px">437 nhân viên dùng BI tại Bắc Mỹ · PLS-SEM (SmartPLS 3) · Likert 7 mức · kiểm soát thâm niên, kinh nghiệm BI, tuổi, giới tính.</p></div>
+  </div>
+  <p class="src" style="bottom:20px">Nguồn: dịch và vẽ lại từ Trieu (2023), Figure 3 (mô hình) và Figure 4, Table 5 (kết quả).</p>
+</section>
+
+<!-- ============ 9a. TỪ BI SANG BASE ============ -->
+<section class="slide light" data-name="Từ BI sang Base">
+  <p class="eyebrow">Phần 3 · <b>Vận dụng mô hình gốc vào Base.vn</b></p>
+  <p class="title">Từ Trieu (2023) <em class="em">sang Base.vn</em></p>
+  <div class="wrap" data-b="1">
+    <table class="tbl">
+      <thead><tr><th style="width:470px">Trieu (2023)</th><th>Khóa luận tại Base.vn</th><th style="width:420px">Vị trí trong chuỗi Data Service</th></tr></thead>
+      <tbody>
+        <tr><td>Source systems (hệ thống giao dịch, vận hành)</td><td><b>Phần mềm Base</b>: Work, HRM, CRM, Finance…</td><td><span class="pill n">① Vận hành</span></td></tr>
+        <tr><td>Quality of Data in Source Systems</td><td>Chất lượng dữ liệu trên phần mềm Base · <b>biến độc lập</b></td><td><span class="pill">② Dữ liệu</span></td></tr>
+        <tr><td>BI system</td><td><b>Hệ thống báo cáo (BI)</b> do Data Service xây trên kho dữ liệu, ở mọi dạng: xSpace, Power BI, App BI (app tự code thay Power BI), Google Sheet, HTML…</td><td><span class="pill">③ Báo cáo</span></td></tr>
+        <tr><td><b>Actual BI System Use</b> = Dependence + Infusion</td><td><b>Effective use hệ thống BI</b> = mức độ dựa vào + mức độ khai thác sâu hệ thống BI</td><td><span class="pill g">③ Dùng hệ thống BI</span></td></tr>
+        <tr><td>Decision-Making Performance</td><td>Hiệu quả ra quyết định dựa trên dữ liệu</td><td><span class="pill y">④ Ra quyết định</span></td></tr>
+        <tr><td>Data-Based Culture · Decision-Making Autonomy</td><td>Giữ nguyên: văn hóa dựa trên dữ liệu, quyền tự chủ ra quyết định</td><td><span class="pill n">Điều kiện tổ chức</span></td></tr>
+      </tbody>
+    </table>
+    <div class="concl" data-b="2"><i></i><span>Tác giả viết về BI System Infusion: <b><span style="font-style:italic">"This reflects the effective use of BI systems"</span></b> (Trieu, 2023, tr. 412). Phần mềm Base là <b>hệ thống nguồn</b>, chỉ vào mô hình qua biến chất lượng dữ liệu; <b>hệ thống BI</b> là toàn bộ báo cáo do phòng Data Service xây, dù trên xSpace, Power BI, App BI, Google Sheet hay HTML. Cả khối dựa vào và khai thác sâu hệ thống BI được gọi là <b>effective use hệ thống BI</b>.</span></div>
+  </div>
+</section>
+
+<!-- ============ 9. MÔ HÌNH ĐỀ XUẤT ============ -->
+<section class="slide light" data-name="Mô hình đề xuất">
+  <p class="eyebrow">Phần 3 · <b>Mô hình đề xuất</b> · kế thừa nguyên Trieu (2023)</p>
+  <p class="title">Effective use hệ thống BI → <em class="em">quyết định dựa trên dữ liệu</em></p>
+  <div class="mdl" style="width:1300px" data-b="1">
+    <svg viewBox="0 0 1300 790" style="width:1300px;height:790px" aria-label="Mô hình nghiên cứu đề xuất">
+      <defs><marker id="bK" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#141a33"/></marker></defs>
+      <rect x="20" y="20" width="380" height="740" rx="18" fill="#eef3fd" fill-opacity=".6" stroke="#2f6fe0" stroke-width="2" stroke-dasharray="8 6"/>
+      <text x="210" y="56" text-anchor="middle" font-family="Lexend" font-weight="700" font-size="16" fill="#1d4fb8" letter-spacing="1">NGUỒN LỰC TỔ CHỨC</text>
+      <rect x="670" y="20" width="460" height="430" rx="18" fill="#e3f6ec" fill-opacity=".75" stroke="#14915c" stroke-width="3"/>
+      <text x="900" y="52" text-anchor="middle" font-family="Lexend" font-weight="700" font-size="17" fill="#0f6b43" letter-spacing="1">EFFECTIVE USE HỆ THỐNG BI</text>
+      <text x="900" y="76" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="14" fill="#4a5378">= hệ thống báo cáo do Data Service xây</text>
+      <rect x="670" y="540" width="460" height="220" rx="18" fill="#fff8e6" fill-opacity=".7" stroke="#c39a2c" stroke-width="2" stroke-dasharray="8 6"/>
+      <text x="1110" y="574" text-anchor="end" font-family="Lexend" font-weight="700" font-size="16" fill="#8a4b00" letter-spacing="1">KẾT QUẢ</text>
+
+      <line x1="380" y1="150" x2="696" y2="150" stroke="#141a33" stroke-width="4" marker-end="url(#bK)"/>
+      <text x="540" y="138" text-anchor="middle" font-family="Plus Jakarta Sans" font-weight="800" font-size="20" fill="#2f6fe0">H1a</text>
+      <line x1="380" y1="400" x2="696" y2="370" stroke="#141a33" stroke-width="4" marker-end="url(#bK)"/>
+      <text x="540" y="412" text-anchor="middle" font-family="Plus Jakarta Sans" font-weight="800" font-size="20" fill="#2f6fe0">H2a</text>
+      <line x1="380" y1="670" x2="696" y2="670" stroke="#141a33" stroke-width="4" marker-end="url(#bK)"/>
+      <text x="540" y="658" text-anchor="middle" font-family="Plus Jakarta Sans" font-weight="800" font-size="20" fill="#2f6fe0">H3</text>
+      <line x1="900" y1="220" x2="900" y2="296" stroke="#141a33" stroke-width="4" marker-end="url(#bK)"/>
+      <text x="916" y="266" font-family="Plus Jakarta Sans" font-weight="800" font-size="20" fill="#2f6fe0">H4b</text>
+      <line x1="900" y1="410" x2="900" y2="606" stroke="#141a33" stroke-width="4" marker-end="url(#bK)"/>
+      <text x="916" y="512" font-family="Plus Jakarta Sans" font-weight="800" font-size="20" fill="#2f6fe0">H5</text>
+      <polyline points="1100,165 1230,165 1230,670 1104,670" fill="none" stroke="#141a33" stroke-width="4" marker-end="url(#bK)"/>
+      <text x="1244" y="420" font-family="Plus Jakarta Sans" font-weight="800" font-size="20" fill="#2f6fe0">H4a</text>
+      <line x1="380" y1="370" x2="696" y2="195" stroke="#141a33" stroke-width="3.5" stroke-dasharray="3 6" marker-end="url(#bK)"/>
+      <text x="640" y="254" text-anchor="middle" font-family="Plus Jakarta Sans" font-weight="800" font-size="20" fill="#2f6fe0">H2b</text>
+      <line x1="380" y1="180" x2="696" y2="330" stroke="#141a33" stroke-width="3.5" stroke-dasharray="3 6" marker-end="url(#bK)"/>
+      <text x="450" y="196" text-anchor="middle" font-family="Plus Jakarta Sans" font-weight="800" font-size="20" fill="#2f6fe0">H1b</text>
+      <line x1="380" y1="205" x2="756" y2="606" stroke="#141a33" stroke-width="3.5" stroke-dasharray="3 6" marker-end="url(#bK)"/>
+      <text x="610" y="520" text-anchor="end" font-family="Plus Jakarta Sans" font-weight="800" font-size="20" fill="#2f6fe0">H1c</text>
+
+      <g class="bx">
+        <rect x="40" y="100" width="340" height="120" rx="14" fill="#deebf7" stroke="#2f6fe0" stroke-width="2"/>
+        <text x="210" y="150" text-anchor="middle" font-weight="700" font-size="20" fill="#141a33">Văn hóa dựa trên dữ liệu</text>
+        <text x="210" y="180" text-anchor="middle" font-size="16" fill="#4a5378">DBC</text>
+        <rect x="40" y="330" width="340" height="120" rx="14" fill="#deebf7" stroke="#2f6fe0" stroke-width="2"/>
+        <text x="210" y="370" text-anchor="middle" font-weight="700" font-size="20" fill="#141a33">Chất lượng dữ liệu</text>
+        <text x="210" y="396" text-anchor="middle" font-weight="700" font-size="20" fill="#141a33">trên phần mềm Base</text>
+        <text x="210" y="426" text-anchor="middle" font-size="16" fill="#4a5378">DQSS</text>
+        <rect x="40" y="610" width="340" height="120" rx="14" fill="#deebf7" stroke="#2f6fe0" stroke-width="2"/>
+        <text x="210" y="660" text-anchor="middle" font-weight="700" font-size="20" fill="#141a33">Quyền tự chủ ra quyết định</text>
+        <text x="210" y="690" text-anchor="middle" font-size="16" fill="#4a5378">DMA</text>
+
+        <rect x="700" y="100" width="400" height="120" rx="14" fill="#ffffff" stroke="#14915c" stroke-width="2.5"/>
+        <text x="900" y="152" text-anchor="middle" font-weight="700" font-size="20" fill="#141a33">Mức độ dựa vào hệ thống BI</text>
+        <text x="900" y="182" text-anchor="middle" font-size="16" fill="#4a5378">Dependence · BSDU</text>
+        <rect x="700" y="300" width="400" height="110" rx="14" fill="#ffffff" stroke="#14915c" stroke-width="2.5"/>
+        <text x="900" y="348" text-anchor="middle" font-weight="700" font-size="20" fill="#141a33">Mức độ khai thác sâu hệ thống BI</text>
+        <text x="900" y="378" text-anchor="middle" font-size="16" fill="#4a5378">Infusion · BSI</text>
+        <rect x="700" y="610" width="400" height="120" rx="14" fill="#fff2cc" stroke="#c39a2c" stroke-width="2.5"/>
+        <text x="900" y="652" text-anchor="middle" font-weight="700" font-size="20" fill="#141a33">Hiệu quả ra quyết định</text>
+        <text x="900" y="678" text-anchor="middle" font-weight="700" font-size="20" fill="#141a33">dựa trên dữ liệu</text>
+        <text x="900" y="706" text-anchor="middle" font-size="16" fill="#4a5378">DMP</text>
+      </g>
+    </svg>
+  </div>
+  <div style="position:absolute;left:1430px;top:200px;width:394px;display:flex;flex-direction:column;gap:16px">
+    <div class="card" data-b="2" style="padding:20px 24px"><p class="k" style="color:#0f6b43">Giữ nguyên</p><p class="p" style="font-size:17px;margin-top:6px">6 biến, 9 giả thuyết, thang đo của Trieu (2023). Chỉ đổi bối cảnh: <b>hệ thống nguồn → phần mềm Base</b>, <b>hệ thống BI → hệ thống báo cáo do Data Service xây</b> (xSpace, Power BI, App BI, Google Sheet, HTML).</p></div>
+    <div class="card" data-b="3" style="padding:20px 24px"><p class="k">Theo chuỗi Data Service</p><p class="p" style="font-size:17px;margin-top:6px">Vận hành trên Base → <b>dữ liệu</b> (DQSS) → <b>effective use hệ thống BI</b> (BSDU, BSI) → <b>quyết định</b> (DMP).</p></div>
+    <div class="card" data-b="4" style="padding:20px 24px"><p class="k" style="color:#8a4b00">Thêm H6</p><p class="p" style="font-size:17px;margin-top:6px">So sánh theo <b>nhóm người dùng</b> (MGA). Bài gốc đề xuất thu dữ liệu tại từng tổ chức cụ thể, phần Hạn chế.</p></div>
+  </div>
+  <div class="legend" style="bottom:56px" data-b="5"><span><i></i>Quan hệ chính</span><span><i class="ns"></i>Quan hệ phụ</span><span><b>H6 · MGA:</b> người dùng chuyên sâu / thường · quản lý / nhân viên</span></div>
+  <p class="src" style="bottom:20px">Nguồn: tác giả kế thừa Trieu (2023), vận dụng vào bối cảnh Base.vn theo chuỗi vận hành → dữ liệu → báo cáo → quyết định của Base Data Service (2026).</p>
+</section>
+
+<!-- ============ 10. GIẢ THUYẾT ============ -->
+<section class="slide light" data-name="Giả thuyết">
+  <p class="eyebrow">Phần 3 · <b>Giả thuyết nghiên cứu</b> · kết quả gốc theo Trieu (2023), Table 5 và Figure 4</p>
+  <p class="title">Chín giả thuyết <em class="em">kế thừa, một mở rộng</em></p>
+  <div class="wrap" data-b="1">
+    <table class="tbl tight">
+      <thead><tr><th style="width:90px">H</th><th>Phát biểu (tác động cùng chiều)</th><th style="width:150px">Loại</th><th style="width:150px">Hệ số gốc</th><th style="width:200px">Kết quả gốc</th></tr></thead>
+      <tbody>
+        <tr class="grp"><td colspan="5">Nguồn lực tổ chức → effective use hệ thống BI</td></tr>
+        <tr><td class="c">H1a</td><td>Văn hóa dựa trên dữ liệu → Mức độ dựa vào hệ thống BI</td><td><span class="pill">Chính</span></td><td>0,225</td><td><span class="pill g">✓ Ủng hộ</span></td></tr>
+        <tr><td class="c">H1b</td><td>Văn hóa dựa trên dữ liệu → Mức độ khai thác sâu hệ thống BI</td><td><span class="pill n">Phụ</span></td><td>0,191</td><td><span class="pill g">✓ Ủng hộ</span></td></tr>
+        <tr><td class="c">H2a</td><td>Chất lượng dữ liệu nguồn → Mức độ khai thác sâu hệ thống BI</td><td><span class="pill">Chính</span></td><td>0,402</td><td><span class="pill g">✓ Ủng hộ</span></td></tr>
+        <tr><td class="c">H2b</td><td>Chất lượng dữ liệu nguồn → Mức độ dựa vào hệ thống BI</td><td><span class="pill n">Phụ</span></td><td>0,349</td><td><span class="pill g">✓ Ủng hộ</span></td></tr>
+        <tr><td class="c">H4b</td><td>Mức độ dựa vào hệ thống BI → Mức độ khai thác sâu hệ thống BI</td><td><span class="pill">Chính</span></td><td>0,209</td><td><span class="pill g">✓ Ủng hộ</span></td></tr>
+        <tr class="grp"><td colspan="5">Effective use hệ thống BI và nguồn lực tổ chức → hiệu quả ra quyết định dựa trên dữ liệu</td></tr>
+        <tr><td class="c">H4a</td><td>Mức độ dựa vào hệ thống BI → Hiệu quả ra quyết định</td><td><span class="pill">Chính</span></td><td>0,121</td><td><span class="pill g">✓ Ủng hộ</span></td></tr>
+        <tr><td class="c">H5</td><td>Mức độ khai thác sâu hệ thống BI → Hiệu quả ra quyết định</td><td><span class="pill">Chính</span></td><td>0,276</td><td><span class="pill g">✓ Ủng hộ</span></td></tr>
+        <tr><td class="c">H1c</td><td>Văn hóa dựa trên dữ liệu → Hiệu quả ra quyết định</td><td><span class="pill n">Phụ</span></td><td>0,353</td><td><span class="pill g">✓ Ủng hộ</span></td></tr>
+        <tr><td class="c">H3</td><td>Quyền tự chủ ra quyết định → Hiệu quả ra quyết định</td><td><span class="pill">Chính</span></td><td>0,159</td><td><span class="pill g">✓ Ủng hộ</span></td></tr>
+        <tr class="grp"><td colspan="5">Mở rộng</td></tr>
+        <tr><td class="c">H6</td><td>Các quan hệ trên khác nhau giữa các nhóm người dùng (MGA)</td><td><span class="pill y">Mới</span></td><td>—</td><td><span class="pill y">Chưa kiểm định</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="src">H6 dựa trên đề xuất thu dữ liệu tại tổ chức cụ thể của Trieu (2023) và lời kêu gọi xét vai trò người dùng của Trieu et al. (2022, tr. 32) · hạng Q tạp chí: slide tiếp theo.</p>
+</section>
+
+<!-- ============ 11. THANG ĐO 1 ============ -->
+<section class="slide light" data-name="Thang đo 1">
+  <p class="eyebrow">Phần 4 · <b>Thang đo (1/2)</b> · Appendix của Trieu (2023) · Likert 7 mức → 5 mức</p>
+  <p class="title">Effective use hệ thống BI <em class="em">và hiệu quả ra quyết định</em></p>
+  <div class="wrap" data-b="1">
+    <table class="tbl tight">
+      <thead><tr><th style="width:110px">Mã</th><th>Câu hỏi (bối cảnh Base)</th><th style="width:330px">Nguồn gốc</th></tr></thead>
+      <tbody>
+        <tr class="grp"><td colspan="3">BSDU · Mức độ dựa vào hệ thống BI<span>3 câu · effective use hệ thống BI, chiều 1</span></td></tr>
+        <tr><td class="c">BSDU1</td><td>Tôi dựa nhiều vào hệ thống BI để hỗ trợ các quyết định của mình.</td><td class="sm">Goodhue &amp; Thompson (1995)</td></tr>
+        <tr><td class="c">BSDU2</td><td>Tôi không thể ra các quyết định quan trọng một cách đúng đắn nếu không có hệ thống BI.</td><td class="sm">Goodhue &amp; Thompson (1995)</td></tr>
+        <tr><td class="c">BSDU3</td><td>Tôi phụ thuộc nhiều vào hệ thống BI để hỗ trợ công việc của mình.</td><td class="sm">Goodhue &amp; Thompson (1995)</td></tr>
+        <tr class="grp"><td colspan="3">BSI · Mức độ khai thác sâu hệ thống BI<span>3 câu · effective use hệ thống BI, chiều 2</span></td></tr>
+        <tr><td class="c">BSI1</td><td>Tôi đang dùng hệ thống BI hết khả năng của nó để hỗ trợ công việc của mình.</td><td class="sm">Sundaram et al. (2007)</td></tr>
+        <tr><td class="c">BSI2</td><td>Tôi đang dùng các tính năng của hệ thống BI (lọc, drill-down, cảnh báo) theo cách tốt nhất để hỗ trợ công việc.</td><td class="sm">Sundaram et al. (2007)</td></tr>
+        <tr><td class="c">BSI3*</td><td>Tôi không nghĩ còn cách nào tốt hơn để dùng hệ thống BI hỗ trợ công việc của mình.</td><td class="sm">Sundaram et al. (2007)</td></tr>
+        <tr class="grp"><td colspan="3">DMP · Hiệu quả ra quyết định dựa trên dữ liệu<span>2 câu</span></td></tr>
+        <tr><td class="c">DMP1</td><td>Các quyết định của tôi giúp đạt các chỉ số KPI mà phòng ban/công ty kỳ vọng.</td><td class="sm">Trieu et al. (2022)</td></tr>
+        <tr><td class="c">DMP2</td><td>Các quyết định của tôi giúp đạt các mục tiêu công việc mà công ty/phòng ban đề ra.</td><td class="sm">Trieu et al. (2022)</td></tr>
+      </tbody>
+    </table>
+    <div class="concl" data-b="2"><i></i><span>* Câu bị loại ở bài gốc do độ tin cậy thấp. Khóa luận vẫn đưa vào khảo sát và quyết định giữ hay loại theo hệ số tải (≥ 0,708).</span></div>
+  </div>
+</section>
+
+<!-- ============ 12. THANG ĐO 2 ============ -->
+<section class="slide light" data-name="Thang đo 2">
+  <p class="eyebrow">Phần 4 · <b>Thang đo (2/2)</b> · Appendix của Trieu (2023) · Likert 5 mức</p>
+  <p class="title">Nguồn lực <em class="em">tổ chức</em></p>
+  <div class="wrap" data-b="1">
+    <table class="tbl tight">
+      <thead><tr><th style="width:110px">Mã</th><th>Câu hỏi (bối cảnh Base)</th><th style="width:330px">Nguồn gốc</th></tr></thead>
+      <tbody>
+        <tr class="grp"><td colspan="3">DBC · Văn hóa dựa trên dữ liệu<span>4 câu</span></td></tr>
+        <tr><td class="c">DBC1</td><td>Công ty khuyến khích tôi tìm dữ liệu/thông tin để hỗ trợ ra quyết định.</td><td class="sm">Kulkarni &amp; Robles-Flores (2013)</td></tr>
+        <tr><td class="c">DBC2</td><td>Công ty coi trọng việc đo lường và đánh giá dữ liệu khi ra quyết định.</td><td class="sm">Kulkarni &amp; Robles-Flores (2013)</td></tr>
+        <tr><td class="c">DBC3</td><td>Công ty khuyến khích tôi phân tích định lượng/số liệu để ra quyết định dựa trên dữ liệu.</td><td class="sm">Kulkarni &amp; Robles-Flores (2013)</td></tr>
+        <tr><td class="c">DBC4</td><td>Công ty khuyến khích tôi ra quyết định dựa trên dữ liệu.</td><td class="sm">Kulkarni &amp; Robles-Flores (2013)</td></tr>
+        <tr class="grp"><td colspan="3">DQSS · Chất lượng dữ liệu trên phần mềm Base<span>3 câu · Work, HRM, CRM, Finance…</span></td></tr>
+        <tr><td class="c">DQSS1</td><td>Dữ liệu trên phần mềm Base (Work, HRM, CRM…) mà hệ thống BI sử dụng là chính xác.</td><td class="sm">Işık et al. (2013)</td></tr>
+        <tr><td class="c">DQSS2</td><td>Dữ liệu trên phần mềm Base (Work, HRM, CRM…) mà hệ thống BI sử dụng là nhất quán.</td><td class="sm">Işık et al. (2013)</td></tr>
+        <tr><td class="c">DQSS3</td><td>Dữ liệu trên phần mềm Base (Work, HRM, CRM…) mà hệ thống BI sử dụng là đầy đủ.</td><td class="sm">Işık et al. (2013)</td></tr>
+        <tr class="grp"><td colspan="3">DMA · Quyền tự chủ ra quyết định<span>4 câu</span></td></tr>
+        <tr><td class="c">DMA1*</td><td>Tôi có nhiều tự do trong việc lựa chọn cách ra quyết định.</td><td class="sm">Ahuja et al. (2007)</td></tr>
+        <tr><td class="c">DMA2</td><td>Tôi tự kiểm soát cách mình ra quyết định.</td><td class="sm">Ahuja et al. (2007)</td></tr>
+        <tr><td class="c">DMA3</td><td>Tôi có thẩm quyền ra quyết định trong công việc của mình.</td><td class="sm">Ahuja et al. (2007)</td></tr>
+        <tr><td class="c">DMA4*</td><td>Tôi tự sắp xếp thời điểm ra các quyết định của mình.</td><td class="sm">Ahuja et al. (2007)</td></tr>
+      </tbody>
+    </table>
+    <div class="concl" data-b="2"><i></i><span>Tổng <b>19 câu</b>: BSDU 3 · BSI 3 · DMP 2 · DBC 4 · DQSS 3 · DMA 4. Câu có dấu * bị loại ở bài gốc.</span></div>
+  </div>
+</section>
+
+<!-- ============ 14. BẢNG HỎI ============ -->
+<section class="slide light" data-name="Bảng hỏi">
+  <p class="eyebrow">Phần 4 · <b>Thiết kế khảo sát</b></p>
+  <p class="title">Bảng hỏi <em class="em">5–7 phút, ẩn danh</em></p>
+  <div class="wrap top" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px">
+    <div class="card" data-b="1">
+      <p class="k">Phần 0 · Sàng lọc</p>
+      <ul class="ul" style="font-size:19px">
+        <li>Dùng hệ thống BI <b>từ 3 tháng</b> trở lên?</li>
+        <li>Có dùng <b>hệ thống BI</b> để ra quyết định? (như bài gốc)</li>
+        <li>Các dạng báo cáo đang dùng (<b>chọn nhiều</b>: xSpace / Power BI / App BI / Google Sheet / HTML) → Phần 2 hỏi chung về hệ thống báo cáo</li>
+      </ul>
+      <p class="k" style="margin-top:22px">Phần 1 · Thông tin chung</p>
+      <ul class="ul">
+        <li>Giới tính, tuổi, văn phòng, khối, thâm niên, <b>kinh nghiệm dùng BI</b> (kiểm soát như bài gốc)</li>
+        <li><b>Vị trí</b> → MGA (a): quản lý / nhân viên</li>
+        <li><b>Kiểu người dùng BI</b> → MGA (b): chỉ xem dashboard có sẵn / tự lọc, drill-down / tự xây báo cáo</li>
+        <li>Tần suất mở hệ thống BI mỗi tuần</li>
+        <li>Ứng dụng Base nhập liệu chính (nguồn dữ liệu); dashboard phục vụ ai (c)</li>
+      </ul>
+    </div>
+    <div class="card" data-b="2">
+      <p class="k">Phần 2 · 19 câu Likert 5 mức</p>
+      <ul class="ul">
+        <li>A. Mức độ dựa vào hệ thống BI · BSDU1–3</li>
+        <li>B. Mức độ khai thác sâu hệ thống BI · BSI1–3</li>
+        <li>C. Văn hóa công ty · DBC1–4</li>
+        <li>D. Dữ liệu nguồn trên phần mềm Base · DQSS1–3 + <b>câu kiểm tra sự chú ý</b></li>
+        <li>E. Quyền quyết định của tôi · DMA1–4</li>
+        <li>F. Quyết định của tôi · DMP1–2</li></ul>
+      <p class="k" style="margin-top:22px">Phần 3 · Câu mở</p>
+      <p class="p" style="font-size:19px">Điều gì cản trở? Đề xuất một thay đổi? Để lại email nếu nhận phỏng vấn.</p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:20px">
+      <div class="card" data-b="3" style="background:linear-gradient(165deg,#12205a 0%,#0b1440 75%);border:none;color:#fff">
+        <p class="k" style="color:#9cc4ff">Cỡ mẫu</p>
+        <p style="margin-top:8px;font:800 64px/1 var(--fd);color:#fff">≥ 155</p>
+        <p style="margin-top:8px;font:400 19px/1.4 var(--fs);color:#cdd5f5">Kock &amp; Hadaya (2018): hệ số đường dẫn nhỏ nhất 0,20, α = 5%. <b style="color:#fff">Mục tiêu 200+</b> (khoảng 48% của 420 nhân sự). Nhóm quản lý chỉ có 85 người nên MGA chính theo <b style="color:#fff">kiểu người dùng</b>; so sánh quản lý / nhân viên là phân tích bổ sung.</p>
+      </div>
+      <div class="card" data-b="4">
+        <p class="k">Quy trình thu</p>
+        <ul class="ul" style="gap:8px">
+          <li>Dịch xuôi, dịch ngược, hỏi 2 chuyên gia</li>
+          <li>Khảo sát thử n ≈ 30</li>
+          <li>Gửi qua kênh nội bộ, thu 3–4 tuần, nhắc tuần 2–3</li>
+          <li><b>Khảo sát 1 đợt</b>; giảm sai lệch phương pháp bằng ẩn danh, câu kiểm tra sự chú ý, kiểm định Harman và VIF</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 14b. QR KHẢO SÁT ============ -->
+<section class="slide light" data-name="QR khảo sát">
+  <p class="eyebrow">Phần 4 · <b>Thu thập dữ liệu sơ cấp</b> · tháng 9 – tháng 11/2026</p>
+  <p class="title">Quét mã để <em class="em">làm khảo sát</em></p>
+  <div class="wrap top" style="display:grid;grid-template-columns:600px 1fr;gap:32px">
+    <div class="card" data-b="1" style="display:flex;flex-direction:column;align-items:center;padding:32px">
+      <div id="surveyQR" style="width:480px;height:480px;display:grid;place-items:center;border-radius:16px;background:#f4f6fb;color:#8e95b8;font:500 20px/1.4 var(--fs);text-align:center;padding:24px">Mã QR sẽ hiện khi có link khảo sát</div>
+      <p id="surveyLink" style="margin-top:18px;font:600 17px var(--fs);color:#1d4fb8;word-break:break-all;text-align:center"></p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:18px">
+      <div class="card" data-b="2" style="padding:22px 28px"><p class="k">Đối tượng</p><p class="p" style="margin-top:6px">Nhân viên, quản lý Base.vn dùng hệ thống báo cáo (BI) do Data Service xây <b>từ 3 tháng trở lên</b> để ra quyết định. Người không đạt sàng lọc được cảm ơn và kết thúc.</p></div>
+      <div class="card" data-b="2" style="padding:22px 28px"><p class="k">Cấu trúc phiếu · 5–7 phút</p><p class="p" style="margin-top:6px">Sàng lọc → Thông tin chung → <b>19 câu Likert 5 mức</b> và 1 câu kiểm tra sự chú ý → Ý kiến thêm, email nếu nhận phỏng vấn.</p></div>
+      <div class="card" data-b="3" style="padding:22px 28px"><p class="k">Công cụ</p><p class="p" style="margin-top:6px">Web app <b>Google Apps Script</b>, chạy tốt trên điện thoại. Phiếu ghi thẳng vào Google Sheet kèm thời điểm, thời lượng làm bài và trạng thái sàng lọc.</p></div>
+      <div class="card" data-b="3" style="padding:22px 28px"><p class="k">Ẩn danh</p><p class="p" style="margin-top:6px">Không hỏi họ tên. Email chỉ thu khi người trả lời tự nguyện nhận phỏng vấn sâu.</p></div>
+    </div>
+  </div>
+</section>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script>
+(function(){
+  const SURVEY_URL = 'https://script.google.com/macros/s/AKfycbxS7EspSemNtWQJ2RQy0elpW9xct_jqjvljMT_0oIwZ5VAC6_DapA18sEpjCFYcwmrl/exec';  // dán link web app Apps Script (…/exec) vào đây
+  if (!SURVEY_URL || typeof qrcode === 'undefined') return;
+  const qr = qrcode(0, 'M'); qr.addData(SURVEY_URL); qr.make();
+  const box = document.getElementById('surveyQR');
+  box.style.background = '#fff'; box.style.padding = '0';
+  box.innerHTML = qr.createSvgTag({cellSize: 10, margin: 2, scalable: true});
+  const svg = box.querySelector('svg'); svg.style.width = '100%'; svg.style.height = '100%';
+  document.getElementById('surveyLink').textContent = SURVEY_URL;
+})();
+</script>
+<!-- ============ 15. PHỎNG VẤN ============ -->
+<section class="slide light" data-name="Phỏng vấn sâu">
+  <p class="eyebrow">Phần 4 · <b>Phỏng vấn sâu</b> · sau khảo sát, để giải thích kết quả</p>
+  <p class="title">Hỏi ai, <em class="em">hỏi gì</em></p>
+  <div class="wrap top" style="display:grid;grid-template-columns:640px 1fr;gap:28px">
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div class="card" data-b="1" style="padding:20px 26px"><p class="k">M1–M3 · 2–3 người · nội bộ</p><p class="h" style="font-size:24px">Quản lý, trưởng nhóm</p><p class="p" style="font-size:18px;margin-top:4px">Dùng dashboard để điều hành; kỳ vọng nhân viên dùng BI thế nào (c)</p></div>
+      <div class="card" data-b="1" style="padding:20px 26px"><p class="k">E1–E3 · 2–3 người · nội bộ</p><p class="h" style="font-size:24px">Nhân viên Base.vn</p><p class="p" style="font-size:18px;margin-top:4px">Vì sao chỉ xem dashboard, chưa dựa vào và khai thác sâu (a)</p></div>
+      <div class="card" data-b="2" style="padding:20px 26px"><p class="k">D1–D2 · 2 người · phòng Data Service</p><p class="h" style="font-size:24px">Người xây báo cáo</p><p class="p" style="font-size:18px;margin-top:4px">Kho dữ liệu, chất lượng dữ liệu nguồn (b), cách người dùng khai thác dashboard</p></div>
+      <div class="card" data-b="2" style="padding:20px 26px"><p class="k">C1–C3 · 2–3 người · khách hàng</p><p class="h" style="font-size:24px">Khách hàng Data Service</p><p class="p" style="font-size:18px;margin-top:4px">Dùng hệ thống BI Data Service xây, dữ liệu từ Base · chỉ phỏng vấn, không khảo sát</p></div>
+    </div>
+    <div class="card" data-b="3">
+      <p class="k">12 câu hỏi bán cấu trúc · 30–45 phút · ẩn danh bằng mã</p>
+      <ol style="margin-top:14px;padding-left:28px;display:flex;flex-direction:column;gap:9px;font:400 19px/1.4 var(--fs);color:#2c3456">
+        <li><b>(Bối cảnh)</b> Hằng ngày anh/chị dùng những báo cáo nào (xSpace, Power BI, App BI, Google Sheet, HTML…), để làm gì?</li>
+        <li><b>(BSI)</b> Anh/chị dùng được bao nhiêu tính năng của hệ thống BI (lọc, drill-down, cảnh báo)? Khi nào phải chuyển sang Excel?</li>
+        <li><b>(DQSS)</b> Dữ liệu trong các ứng dụng Base (Work, HRM, CRM…) có đầy đủ, khớp nhau không?</li>
+        <li><b>(BSDU)</b> Khi ra quyết định, anh/chị dựa vào hệ thống BI hay vào kinh nghiệm, Excel?</li>
+        <li><b>(DBC)</b> Họp phòng quyết định dựa trên số liệu hay kinh nghiệm?</li>
+        <li><b>(DMA)</b> Anh/chị có được tự quyết dựa trên dữ liệu, hay phải chờ cấp trên?</li>
+        <li><b>(DMP)</b> Kể lần gần nhất dùng hệ thống BI để ra quyết định: kết quả có đạt mục tiêu, KPI không?</li>
+        <li><b>(Vai trò)</b> Dashboard nào phục vụ quản lý, dashboard nào phục vụ nhân viên? Nhân viên có dùng không?</li>
+        <li><b>(Nội bộ · khách hàng)</b> Cách dùng hệ thống BI ở Base và ở khách hàng giống, khác nhau thế nào? Vì sao?</li>
+        <li><b>(Data Service)</b> Dashboard được thiết kế để dùng thế nào? Thực tế người dùng khai thác ra sao?</li>
+        <li><b>(Giải thích kết quả)</b> Vì sao giả thuyết X không được ủng hộ?</li>
+        <li><b>(Giải pháp)</b> Cần thay đổi gì để mọi người dựa vào và khai thác hệ thống BI hiệu quả hơn?</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 16. PHƯƠNG PHÁP ============ -->
+<section class="slide light" data-name="Phương pháp">
+  <p class="eyebrow">Phần 5 · <b>Phương pháp nghiên cứu</b></p>
+  <p class="title">Định lượng trước, <em class="em">định tính sau</em></p>
+  <div class="wrap">
+    <div class="flow" data-b="1">
+      <div class="fs"><p class="n">1</p><b>Quan sát</b><span>Ba biểu hiện tại Base</span></div>
+      <div class="fs"><p class="n">2</p><b>Tổng quan</b><span>Chọn mô hình kế thừa</span></div>
+      <div class="fs"><p class="n">3</p><b>Dịch thang đo</b><span>Xuôi, ngược, 2 chuyên gia</span></div>
+      <div class="fs"><p class="n">4</p><b>Khảo sát thử</b><span>n ≈ 30</span></div>
+      <div class="fs"><p class="n">5</p><b>Khảo sát chính</b><span>≥ 155, mục tiêu 200+</span></div>
+      <div class="fs"><p class="n">6</p><b>PLS-SEM</b><span>SmartPLS 4</span></div>
+      <div class="fs q"><p class="n">7</p><b>Phỏng vấn</b><span>9–11 người, nội bộ + khách hàng</span></div>
+      <div class="fs q"><p class="n">8</p><b>Tổng hợp</b><span>Meta-inference (Venkatesh et al., 2013)</span></div>
+      <div class="fs"><p class="n">9</p><b>Giải pháp</b><span>Chương 5</span></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:26px">
+      <div class="card" data-b="2">
+        <p class="k">Dữ liệu</p>
+        <ul class="ul">
+          <li><b>Thứ cấp nội bộ:</b> hồ sơ năng lực, base.vn, đề xuất dịch vụ và danh mục dashboard của Base Data Service</li>
+          <li><b>Thứ cấp nội bộ:</b> nhật ký hệ thống BI đã ẩn danh (lượt xem, lọc, drill-down theo phòng ban) và rà soát chất lượng dữ liệu nguồn trên Base</li>
+          <li><b>Thứ cấp bên ngoài:</b> IDC, Gartner, BARC &amp; Eckerson, Wavestone, Bộ KH&amp;ĐT, bài báo từ 2020</li>
+          <li><b>Sơ cấp:</b> khảo sát nhân viên Base.vn; phỏng vấn sâu nhân viên, phòng Data Service và khách hàng Data Service</li>
+        </ul>
+      </div>
+      <div class="card" data-b="3">
+        <p class="k">Tiêu chí phân tích PLS-SEM</p>
+        <ul class="ul">
+          <li><b>Sai lệch phương pháp:</b> Harman, full collinearity VIF &lt; 3,3 (Kock, 2015)</li>
+          <li><b>Mô hình đo:</b> loading ≥ 0,708 · α, CR 0,70–0,95 · AVE ≥ 0,50 · HTMT &lt; 0,85</li>
+          <li><b>Mô hình cấu trúc:</b> VIF &lt; 3 · bootstrapping 5.000 mẫu · R², f², Q² (PLSpredict)</li>
+          <li><b>Trung gian:</b> tác động gián tiếp, DQSS → BSI → DMP; DBC → BSDU → BSI → DMP</li>
+          <li><b>MGA:</b> MICOM rồi PLS-MGA · <b>Lưu ý:</b> H4a có β gốc nhỏ (0,121), mẫu khoảng 200 có thể chưa đủ để phát hiện</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 17. KẾT CẤU + BASE TIMELINE ============ -->
+<section class="slide light" data-name="Kết cấu khóa luận">
+  <p class="eyebrow">Phần 6 · <b>Kết cấu khóa luận</b> · tiếng Anh · tối thiểu 60 trang</p>
+  <p class="title">Năm chương, <em class="em">khoảng 61 trang</em></p>
+  <div class="wrap">
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:18px" data-b="1">
+      <div class="card" style="padding:22px"><p class="k">Ch.1 · 8 trang</p><p class="h" style="font-size:23px">Introduction</p><p class="p" style="font-size:17px">Cấp thiết, mục tiêu, câu hỏi, phạm vi, phương pháp</p></div>
+      <div class="card" style="padding:22px"><p class="k">Ch.2 · 15 trang</p><p class="h" style="font-size:23px">Literature Review</p><p class="p" style="font-size:17px">BI, ra quyết định dựa trên dữ liệu, lý thuyết điều khiển học, effective use hệ thống BI, mô hình</p></div>
+      <div class="card" style="padding:22px"><p class="k">Ch.3 · 10 trang</p><p class="h" style="font-size:23px">Overview of Base.vn</p><p class="p" style="font-size:17px">Base và Data Service, hệ thống BI nội bộ, thực trạng effective use</p></div>
+      <div class="card" style="padding:22px"><p class="k">Ch.4 · 20 trang</p><p class="h" style="font-size:23px">Analysis</p><p class="p" style="font-size:17px">Mẫu, mô hình đo, cấu trúc, trung gian, MGA, phỏng vấn, bàn luận</p></div>
+      <div class="card" style="padding:22px"><p class="k">Ch.5 · 8 trang</p><p class="h" style="font-size:23px">Recommendations</p><p class="p" style="font-size:17px">Giải pháp theo nhân tố, theo vai trò, cho khách hàng Data Service, hạn chế</p></div>
+    </div>
+    <div class="card" style="margin-top:26px;padding:26px 34px" data-b="2">
+      <p class="k">Mục 3.1 · Base.vn: nơi sinh ra dữ liệu nguồn</p>
+      <div class="tl">
+        <div class="it"><p class="dot"></p><p class="y">8/2016</p><p class="t">Thành lập · <b>Base 1.0</b> khởi đầu từ các ứng dụng rời</p></div>
+        <div class="it"><p class="dot"></p><p class="y">11/2020</p><p class="t">Base 1.0: hơn 50 ứng dụng, bộ Work+, Info+, HRM+ · Giải Nhất Make in Vietnam</p></div>
+        <div class="it"><p class="dot"></p><p class="y">5/2021</p><p class="t">FPT đầu tư chiến lược, nắm đa số cổ phần</p></div>
+        <div class="it"><p class="dot"></p><p class="y">2023–2024</p><p class="t">Base 1.0 thêm Finance+, CRM, Service · hơn 60 ứng dụng</p></div>
+        <div class="it"><p class="dot" style="border-color:#c0392b"></p><p class="y" style="color:#b42318">2025</p><p class="t"><b>Base 2.0</b> thử nghiệm nội bộ, không thành công, không đưa ra thị trường</p></div>
+        <div class="it now"><p class="dot"></p><p class="y">9/2026</p><p class="t"><b>Base 3.0</b> · người và AI Agent cùng vận hành · bán song song Base 1.0</p></div>
+      </div>
+    </div>
+  </div>
+  <p class="src">Nguồn: Kyodo News PR Wire (2021); VietnamFinance (2020); The Leader (2023); Vietstock (2024); Báo Pháp luật (2026); phân kỳ phiên bản theo tài liệu nội bộ Base.vn (2026).</p>
+</section>
+
+<!-- ============ 19. CẢM ƠN ============ -->
+<section class="slide dark" data-name="Cảm ơn">
+  <svg viewBox="0 0 1920 1080" style="position:absolute;inset:0;width:1920px;height:1080px;pointer-events:none" aria-hidden="true"><defs><radialGradient id="tyg" cx="50%" cy="45%" r="55%"><stop offset="0" stop-color="#3a86ff" stop-opacity=".3"/><stop offset="1" stop-color="#3a86ff" stop-opacity="0"/></radialGradient></defs><rect width="1920" height="1080" fill="url(#tyg)"/></svg>
+  <p class="ty-t" data-b="1">Xin cảm ơn</p>
+  <p class="ty-s" data-b="2">Mong nhận được góp ý của thầy cô cho <b>đề cương</b></p>
+  <p class="cv-date">Đỗ Thanh Bình · EBDB5 · ĐH Kinh tế Quốc dân</p>
+</section>
+
+<p class="pg" id="pg"></p>
+</div>
+
+<script>
+(function(){
+  const stage=document.getElementById('stage'), pg=document.getElementById('pg');
+  const slides=[...document.querySelectorAll('.slide')];
+  let cur=-1, bt=[];
+  function fit(){const s=Math.min(innerWidth/1920,innerHeight/1080);stage.style.transform=`translate(${(innerWidth-1920*s)/2}px,${(innerHeight-1080*s)/2}px) scale(${s})`}
+  addEventListener('resize',fit); fit();
+  function builds(sl,instant){
+    bt.forEach(clearTimeout); bt=[];
+    const els=[...sl.querySelectorAll('[data-b]')];
+    if(instant){els.forEach(e=>e.classList.remove('pre'));return}
+    els.forEach(e=>e.classList.add('pre')); void sl.offsetWidth;
+    const ord=[...new Set(els.map(e=>+e.dataset.b))].sort((a,b)=>a-b);
+    ord.forEach((o,i)=>bt.push(setTimeout(()=>els.filter(e=>+e.dataset.b===o).forEach(e=>e.classList.remove('pre')),200+i*240)));
+  }
+  function go(i,instant){
+    i=Math.max(0,Math.min(slides.length-1,i)); if(i===cur) return;
+    if(slides[cur]) slides[cur].classList.remove('on');
+    cur=i; const sl=slides[i]; sl.classList.add('on'); builds(sl,instant);
+    pg.textContent=(i+1)+' / '+slides.length;
+    try{history.replaceState(null,'','#'+(i+1))}catch(e){}
+  }
+  const next=()=>go(cur+1), prev=()=>go(cur-1,true);
+  addEventListener('keydown',e=>{
+    if(e.metaKey||e.ctrlKey||e.altKey) return;
+    const k=e.key;
+    if(['ArrowRight','PageDown',' ','Enter','ArrowDown'].includes(k)){e.preventDefault();next()}
+    else if(['ArrowLeft','PageUp','Backspace','ArrowUp'].includes(k)){e.preventDefault();prev()}
+    else if(k==='Home'){go(0,true)} else if(k==='End'){go(slides.length-1,true)}
+    else if(k==='f'||k==='F'){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen().catch(()=>{})}
+  });
+  document.addEventListener('click',e=>{ if(e.target.closest('button,a')) return; if(e.clientX<innerWidth*0.18) prev(); else next() });
+  const h=parseInt((location.hash||'#1').slice(1),10);
+  go(isNaN(h)?0:h-1, true);
+})();
+</script>
+</body>
+</html>
